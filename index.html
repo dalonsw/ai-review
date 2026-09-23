@@ -1,1 +1,716 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resumo — Testes de Software</title>
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    :root {
+      --bg:     #0d1117;
+      --surf:   #161b22;
+      --card:   #1c2333;
+      --bord:   #30363d;
+      --a1: #58a6ff;   /* azul */
+      --a2: #3fb950;   /* verde */
+      --a3: #f78166;   /* vermelho-coral */
+      --a4: #d2a8ff;   /* lilás */
+      --a5: #ffa657;   /* âmbar */
+      --a6: #79c0ff;   /* azul-claro */
+      --text:  #e6edf3;
+      --muted: #8b949e;
+      --tag:   #21262d;
+    }
+    html { scroll-behavior:smooth; }
+    body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+
+    /* Header */
+    header {
+      background:linear-gradient(135deg,#161b22,#0d1117);
+      border-bottom:1px solid var(--bord); padding:3rem 2rem 2.5rem; text-align:center;
+      position:relative; overflow:hidden;
+    }
+    header::before {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse at 50% 0%,rgba(63,185,80,.12) 0%,transparent 65%);
+      pointer-events:none;
+    }
+    .badge {
+      display:inline-block; background:rgba(63,185,80,.1); border:1px solid rgba(63,185,80,.3);
+      color:var(--a2); font-size:.73rem; font-weight:700; letter-spacing:.08em;
+      text-transform:uppercase; padding:.3rem .9rem; border-radius:999px; margin-bottom:1.1rem;
+    }
+    header h1 {
+      font-size:clamp(1.6rem,4vw,2.5rem); font-weight:800; letter-spacing:-.02em;
+      background:linear-gradient(135deg,#e6edf3 30%,var(--a2) 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      margin-bottom:.45rem;
+    }
+    header p { color:var(--muted); font-size:.95rem; max-width:600px; margin:0 auto; }
+    .mpills { display:flex; flex-wrap:wrap; justify-content:center; gap:.45rem; margin-top:1.4rem; }
+    .mpill { background:var(--card); border:1px solid var(--bord); border-radius:999px; padding:.28rem .85rem; font-size:.78rem; color:var(--muted); }
+    .mpill span { color:var(--text); font-weight:600; }
+
+    /* Tabs */
+    .tabs {
+      position:sticky; top:0; z-index:100;
+      background:rgba(13,17,23,.94); backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--bord); display:flex; overflow-x:auto; scrollbar-width:none; padding:0 1rem;
+    }
+    .tabs::-webkit-scrollbar { display:none; }
+    .tab {
+      flex-shrink:0; background:none; border:none; cursor:pointer; color:var(--muted);
+      font-size:.83rem; font-weight:600; padding:.9rem 1.15rem;
+      border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap;
+    }
+    .tab:hover { color:var(--text); }
+    .tab.active { color:var(--a2); border-bottom-color:var(--a2); }
+
+    /* Layout */
+    main { max-width:980px; margin:0 auto; padding:2.5rem 1.5rem 5rem; }
+    .sec { display:none; animation:fi .3s ease; }
+    .sec.active { display:block; }
+    @keyframes fi { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    /* Section header */
+    .sh { display:flex; align-items:center; gap:.85rem; margin-bottom:2rem; padding-bottom:1rem; border-bottom:1px solid var(--bord); }
+    .si { width:2.6rem; height:2.6rem; border-radius:12px; display:grid; place-items:center; font-size:1.25rem; flex-shrink:0; }
+    .sh h2 { font-size:1.45rem; font-weight:800; letter-spacing:-.02em; }
+    .sh p { font-size:.84rem; color:var(--muted); margin-top:.15rem; }
+
+    /* Cards */
+    .grid { display:grid; gap:1.1rem; }
+    .g2 { grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); }
+    .g3 { grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); }
+    .card {
+      background:var(--card); border:1px solid var(--bord); border-radius:12px;
+      padding:1.3rem 1.4rem; transition:border-color .2s,transform .2s;
+    }
+    .card:hover { border-color:var(--a2); transform:translateY(-2px); }
+    .ch { display:flex; align-items:flex-start; gap:.7rem; margin-bottom:.75rem; }
+    .ci { font-size:1.4rem; flex-shrink:0; margin-top:.1rem; }
+    .card h3 { font-size:.95rem; font-weight:700; }
+    .csub { font-size:.76rem; color:var(--muted); margin-top:.1rem; }
+    .card p { font-size:.85rem; color:var(--muted); margin-bottom:.45rem; }
+    .card p:last-child { margin-bottom:0; }
+    .card strong { color:var(--text); }
+    .tags { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.7rem; }
+    .tag { background:var(--tag); border-radius:6px; font-size:.7rem; font-weight:600; padding:.18rem .5rem; color:var(--muted); }
+
+    /* Highlights */
+    .hl { background:rgba(63,185,80,.07); border:1px solid rgba(63,185,80,.2); border-radius:10px; padding:1rem 1.25rem; margin:1.1rem 0; font-size:.86rem; color:var(--text); }
+    .hl strong { color:var(--a2); }
+    .hl.blue { background:rgba(88,166,255,.07); border-color:rgba(88,166,255,.2); }
+    .hl.blue strong { color:var(--a1); }
+    .hl.orange { background:rgba(255,166,87,.07); border-color:rgba(255,166,87,.2); }
+    .hl.orange strong { color:var(--a5); }
+    .hl.red { background:rgba(247,129,102,.07); border-color:rgba(247,129,102,.2); }
+    .hl.red strong { color:var(--a3); }
+    .hl.purple { background:rgba(210,168,255,.07); border-color:rgba(210,168,255,.2); }
+    .hl.purple strong { color:var(--a4); }
+
+    /* Quote */
+    .quote {
+      background:linear-gradient(135deg,rgba(63,185,80,.07),rgba(88,166,255,.04));
+      border:1px solid rgba(63,185,80,.18); border-radius:12px;
+      padding:1.3rem 1.5rem; margin:1.3rem 0; font-style:italic; color:var(--text); position:relative;
+    }
+    .quote::before { content:'"'; position:absolute; top:-.4rem; left:1rem; font-size:3.5rem; color:var(--a2); opacity:.25; font-style:normal; line-height:1; }
+
+    /* Table */
+    .tw { overflow-x:auto; margin:1rem 0; }
+    table { width:100%; border-collapse:collapse; font-size:.82rem; }
+    thead th { background:rgba(63,185,80,.1); color:var(--a2); font-weight:700; text-align:left; padding:.6rem .9rem; }
+    tbody td { padding:.55rem .9rem; border-top:1px solid var(--bord); color:var(--muted); }
+    tbody tr:hover td { background:rgba(255,255,255,.02); }
+
+    /* Timeline */
+    .tl { position:relative; padding-left:2rem; }
+    .tl::before { content:''; position:absolute; left:.65rem; top:.4rem; width:2px; height:calc(100% - .8rem); background:linear-gradient(to bottom,var(--a2),var(--a1)); border-radius:2px; }
+    .ti { position:relative; margin-bottom:1.3rem; }
+    .td { position:absolute; left:-1.45rem; top:.35rem; width:.8rem; height:.8rem; border-radius:50%; background:var(--a2); border:2px solid var(--bg); }
+    .ti:nth-child(2) .td { background:var(--a1); }
+    .ti:nth-child(3) .td { background:var(--a5); }
+    .ti:nth-child(4) .td { background:var(--a4); }
+    .ti:nth-child(5) .td { background:var(--a3); }
+    .ti h4 { font-size:.9rem; font-weight:700; }
+    .ti p  { font-size:.82rem; color:var(--muted); margin-top:.2rem; }
+
+    /* Pyramid */
+    .pyramid { display:flex; flex-direction:column; align-items:center; gap:.6rem; margin:1.2rem 0; }
+    .py-lvl { border-radius:8px; text-align:center; padding:.7rem 1rem; font-size:.83rem; font-weight:700; }
+
+    /* Badge num */
+    .num-badge {
+      display:inline-flex; align-items:center; justify-content:center;
+      width:1.7rem; height:1.7rem; border-radius:50%; font-size:.75rem; font-weight:800; margin-right:.5rem; flex-shrink:0;
+    }
+
+    /* Subtitle */
+    .sub { font-size:1.02rem; font-weight:700; margin:1.9rem 0 .9rem; color:var(--text); }
+
+    /* Misc */
+    .mt { margin-top:1.1rem; }
+    .mt2 { margin-top:2rem; }
+    .bord-top-green { border-top:3px solid var(--a2) !important; }
+    .bord-top-blue  { border-top:3px solid var(--a1) !important; }
+    .bord-top-red   { border-top:3px solid var(--a3) !important; }
+    .bord-top-amber { border-top:3px solid var(--a5) !important; }
+    .bord-top-lilac { border-top:3px solid var(--a4) !important; }
+
+    /* Scroll top */
+    #top { position:fixed; bottom:2rem; right:1.5rem; background:var(--a2); color:#0d1117; border:none; border-radius:999px; width:2.7rem; height:2.7rem; font-size:1.15rem; cursor:pointer; box-shadow:0 4px 18px rgba(63,185,80,.35); display:none; place-items:center; transition:transform .2s; }
+    #top:hover { transform:scale(1.1); }
+    #top.show { display:grid; }
+
+    @media(max-width:600px){ header{padding:2rem 1rem 1.5rem;} main{padding:1.5rem 1rem 4rem;} }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <div class="badge">🧪 Material de Estudo · Testes de Software</div>
+  <h1>Testes de Software</h1>
+  <p>Resumo completo das 5 aulas + revisão AV1 — da introdução ao monitoramento contínuo</p>
+  <div class="mpills">
+    <div class="mpill">👩‍🏫 <span>Prof.ª Naan Cardoso</span></div>
+    <div class="mpill">📝 <span>6 PDFs · 107 slides</span></div>
+    <div class="mpill">🎯 <span>Revisão AV1 incluída</span></div>
+  </div>
+</header>
+
+<!-- ═══ TABS ═══ -->
+<nav class="tabs" role="tablist">
+  <button class="tab active" onclick="show('a1',this)">🔬 Aula 1 — Introdução</button>
+  <button class="tab" onclick="show('a2',this)">🤖 Aula 2 — Automação</button>
+  <button class="tab" onclick="show('a3',this)">🔄 Aula 3 — Mudanças Ágeis</button>
+  <button class="tab" onclick="show('a4',this)">📡 Aula 4 — Telemetria</button>
+  <button class="tab" onclick="show('a5',this)">🏛️ Aula 5 — ALM x CVDS</button>
+  <button class="tab" onclick="show('rev',this)">📋 Revisão AV1</button>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════ AULA 1 ═══════════════════════════ -->
+<section id="a1" class="sec active">
+  <div class="sh">
+    <div class="si" style="background:rgba(88,166,255,.1);color:var(--a1)">🔬</div>
+    <div><h2>Introdução ao Teste de Software</h2><p>Erro, Defeito, Falha · V&V · Técnicas · Estágios · Caso ATM</p></div>
+  </div>
+
+  <div class="quote">Testes de software podem demonstrar a presença de defeitos, mas nunca a sua ausência. — Edsger W. Dijkstra</div>
+
+  <div class="sub">⚠️ O que o Teste de Software NÃO é</div>
+  <div class="hl red">
+    <strong>Não prova ausência de defeitos · Não garante 100% de funcionamento correto · Não prova que o software faz tudo em qualquer cenário</strong><br>
+    <span style="font-size:.82rem;color:var(--muted)">O teste detecta falhas — a depuração encontra e corrige a causa raiz (o defeito).</span>
+  </div>
+
+  <div class="sub">🎯 A Tríade: Erro → Defeito → Falha</div>
+  <div class="grid g3 mt">
+    <div class="card bord-top-amber">
+      <div class="ch"><span class="ci">👤</span><div><h3>Erro (Mistake)</h3></div></div>
+      <p><strong>Ação humana equívoca.</strong> Origem subjetiva: falta de atenção, comunicação falha, requisitos ambíguos, pressão de prazo.</p>
+      <p>Ocorre na mente do desenvolvedor/analista.</p>
+    </div>
+    <div class="card bord-top-blue">
+      <div class="ch"><span class="ci">🐛</span><div><h3>Defeito (Bug / Fault)</h3></div></div>
+      <p><strong>Instrução incorreta no artefato.</strong> Pode permanecer latente sem ser executado. Detectado via inspeções estáticas e depuração.</p>
+    </div>
+    <div class="card bord-top-red">
+      <div class="ch"><span class="ci">💥</span><div><h3>Falha (Failure)</h3></div></div>
+      <p><strong>Incapacidade do sistema em execução.</strong> Manifesta-se dinamicamente quando o código defeituoso é executado sob condições específicas.</p>
+    </div>
+  </div>
+  <div class="hl blue">
+    <strong>Regra de ouro:</strong> Humano comete <strong>Erro</strong> → introduz <strong>Defeito</strong> no código → execução gera <strong>Falha</strong> visível.
+    Testes observam <strong>falhas</strong>. Debugging encontra os <strong>defeitos</strong>.
+  </div>
+
+  <div class="sub mt2">🔍 Verificação vs. Validação (V&V)</div>
+  <div class="grid g2 mt">
+    <div class="card bord-top-blue">
+      <h3 style="color:var(--a1);margin-bottom:.5rem">Verificação</h3>
+      <p style="font-style:italic;margin-bottom:.6rem">"Estamos construindo <strong>certo</strong> o produto?"</p>
+      <p>Avalia se o produto de cada fase cumpre as especificações técnicas da fase anterior. <strong>Foco no processo.</strong></p>
+    </div>
+    <div class="card bord-top-green">
+      <h3 style="color:var(--a2);margin-bottom:.5rem">Validação</h3>
+      <p style="font-style:italic;margin-bottom:.6rem">"Estamos construindo o produto <strong>certo</strong>?"</p>
+      <p>Avalia se o software final atende às reais necessidades do usuário. <strong>Foco no cliente.</strong></p>
+    </div>
+  </div>
+
+  <div class="sub mt2">🛠️ Técnicas de V&V</div>
+  <div class="grid g2 mt">
+    <div class="card">
+      <div class="ch"><span class="ci">📄</span><div><h3>Estáticas (Sem executar)</h3></div></div>
+      <p>• Revisões técnicas e <em>walkthroughs</em> — aplicáveis em <strong>todas as fases</strong></p>
+      <p>• Inspeções de código (fase de codificação)</p>
+      <p>• Caracterização: Incorreção · Ausência · Extra</p>
+      <p>• Gravidade: Pequeno · Grande · Muito Sério</p>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ci">⚙️</span><div><h3>Dinâmicas (Executam o software)</h3></div></div>
+      <p>• Testes de Software propriamente ditos</p>
+      <p>• Entradas reais ou simuladas são fornecidas</p>
+      <p>• Saídas são observadas em tempo de execução</p>
+    </div>
+  </div>
+
+  <div class="sub mt2">📦 Abordagens de Teste</div>
+  <div class="grid g2 mt">
+    <div class="card bord-top-blue">
+      <h3 style="color:var(--a1);margin-bottom:.5rem">⬜ Caixa-Branca (White-Box / Estrutural)</h3>
+      <p>Testador vê o código-fonte e a lógica interna. Valida caminhos, decisões e laços. Executada pelo <strong>desenvolvedor</strong>. Impraticável para sistemas muito complexos.</p>
+    </div>
+    <div class="card bord-top-amber">
+      <h3 style="color:var(--a5);margin-bottom:.5rem">⬛ Caixa-Preta (Black-Box / Funcional)</h3>
+      <p>Código tratado como opaco. Avalia apenas <strong>entradas → saídas</strong>. Abordagem mais comum na indústria. Ideal para UI, integrações e sistema completo.</p>
+    </div>
+  </div>
+
+  <div class="sub mt2">📊 Os 4 Estágios de Teste</div>
+  <div class="grid mt">
+    <div class="card"><div class="ch"><span class="num-badge" style="background:rgba(63,185,80,.15);color:var(--a2)">01</span><div><h3>Teste de Unidade</h3></div></div><p>Menor unidade testável de forma isolada: classes, funções, métodos. (Caixa-Branca)</p></div>
+    <div class="card"><div class="ch"><span class="num-badge" style="background:rgba(88,166,255,.15);color:var(--a1)">02</span><div><h3>Teste de Integração</h3></div></div><p>Valida interface e comunicação entre dois ou mais módulos/subsistemas integrados.</p></div>
+    <div class="card"><div class="ch"><span class="num-badge" style="background:rgba(255,166,87,.15);color:var(--a5)">03</span><div><h3>Teste de Sistema</h3></div></div><p>Avalia o software completo em relação a todos os requisitos funcionais e não-funcionais.</p></div>
+    <div class="card"><div class="ch"><span class="num-badge" style="background:rgba(247,129,102,.15);color:var(--a3)">04</span><div><h3>Teste de Aceitação</h3></div></div><p>Conduzido pelo <strong>cliente/usuário final</strong> em ambiente operacional. Inclui testes Alfa (interno) e Beta (externo).</p></div>
+  </div>
+
+  <div class="sub mt2">🏧 Estudo de Caso: ATM — Categorias de Teste</div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Categoria</th><th>Exemplos de Cenários</th><th>Prioridade</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Funcional</strong></td><td>Saque acima do saldo; saque em conta-poupança; valores não múltiplos de cédulas</td><td>🔴 Essencial</td></tr>
+        <tr><td><strong>Segurança</strong></td><td>Cartão vencido; validação de senha; saque noturno acima do teto (R$600)</td><td>🔴 Essencial</td></tr>
+        <tr><td><strong>Performance</strong></td><td>Saque ≤ 30s para 5 milhões de correntistas; dispenser ≤ 10s</td><td>🟡 Alto</td></tr>
+        <tr><td><strong>Carga/Concorrência</strong></td><td>2 saques simultâneos na mesma conta; 10.000 requisições concorrentes</td><td>🟡 Alto</td></tr>
+        <tr><td><strong>Recuperação</strong></td><td>Falha no dispensador, queda de energia, queda de conexão com central</td><td>🟡 Alto</td></tr>
+        <tr><td><strong>Usabilidade</strong></td><td>Ajuda em todas as telas; clareza das mensagens de erro; botões de fuga</td><td>🟠 Médio</td></tr>
+        <tr><td><strong>Configuração</strong></td><td>Impressoras de fornecedores A, B, C; Windows 8/10 e Linux</td><td>🟠 Médio</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub mt2">👤 8 Causas Principais de Defeitos · 7 Qualidades do Bom Testador</div>
+  <div class="grid g2 mt">
+    <div class="card">
+      <h3 style="margin-bottom:.75rem">8 Causas de Defeitos</h3>
+      <p>1. Complexidade do software</p>
+      <p>2. Pouca comunicação entre equipe</p>
+      <p>3. Pouca ou nenhuma documentação</p>
+      <p>4. Erros de programação</p>
+      <p>5. Inconstância de requisitos</p>
+      <p>6. Pressões de tempo e recursos</p>
+      <p>7. Mau uso de ferramentas</p>
+      <p>8. Cultura de subestimar desafios</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:.75rem">7 Qualidades do Bom Testador</h3>
+      <p>1. Atitude destrutiva (busca falhas)</p>
+      <p>2. Sede por qualidade</p>
+      <p>3. Atenção a detalhes</p>
+      <p>4. Habilidades de comunicação</p>
+      <p>5. Ponto de vista do usuário</p>
+      <p>6. Experiência com desenvolvimento</p>
+      <p>7. Capacidade de dizer não</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ AULA 2 ═══════════════════════════ -->
+<section id="a2" class="sec">
+  <div class="sh">
+    <div class="si" style="background:rgba(210,168,255,.1);color:var(--a4)">🤖</div>
+    <div><h2>Testes Automatizados</h2><p>Pirâmide de testes, elegibilidade, vantagens e pré-requisitos</p></div>
+  </div>
+
+  <div class="sub">✅ Vantagens da Automação</div>
+  <div class="grid g2 mt">
+    <div class="card"><div class="ch"><span class="ci">🔁</span><div><h3>Repetibilidade e Confiabilidade</h3></div></div><p>Executa a qualquer momento e com alta frequência (a cada commit/build) sem fadiga humana.</p></div>
+    <div class="card"><div class="ch"><span class="ci">⚡</span><div><h3>Agilidade (Shift-Left)</h3></div></div><p>Feedback rápido para o dev logo após escrever o código — defeitos detectados nas fases iniciais.</p></div>
+    <div class="card"><div class="ch"><span class="ci">🏆</span><div><h3>Qualidade do Software</h3></div></div><p>Maior cobertura de código e redução drástica de regressões e falhas em produção.</p></div>
+    <div class="card"><div class="ch"><span class="ci">💰</span><div><h3>Redução de Custos</h3></div></div><p>Corrigir no início é ordens de grandeza mais barato. Libera analistas para testes exploratórios.</p></div>
+  </div>
+
+  <div class="sub mt2">🎯 O que Automatizar? (Critérios de Elegibilidade)</div>
+  <div class="grid g2 mt">
+    <div class="card bord-top-green">
+      <h3 style="color:var(--a2);margin-bottom:.6rem">✅ Automatizar</h3>
+      <p>• <strong>Testes de Regressão</strong> — retestados a cada nova versão</p>
+      <p>• <strong>Alta Criticidade</strong> — login, autenticação, transações financeiras</p>
+      <p>• <strong>Alta Repetição</strong> — fluxos mais acessados pelos usuários</p>
+      <p>• Testes unitários e funcionais</p>
+    </div>
+    <div class="card bord-top-red">
+      <h3 style="color:var(--a3);margin-bottom:.6rem">❌ NÃO Automatizar</h3>
+      <p>• Testes de aceitação do cliente (julgamento humano)</p>
+      <p>• Interfaces em constante mudança (telas instáveis)</p>
+      <p>• Testes exploratórios e pesquisas de usabilidade subjetivas</p>
+      <p>• Onde o custo de manutenção supera o valor gerado</p>
+    </div>
+  </div>
+
+  <div class="sub mt2">🔺 A Pirâmide de Automação de Testes (Mike Cohn)</div>
+
+  <div class="card mt">
+    <div class="pyramid">
+      <div class="py-lvl" style="width:55%;background:rgba(247,129,102,.12);border:1px solid rgba(247,129,102,.25);color:var(--a3)">
+        🧑 Manual Testing<br><span style="font-size:.75rem;font-weight:400">Testes exploratórios, aceitação · Lento · Caro · Mínimo</span>
+      </div>
+      <div class="py-lvl" style="width:70%;background:rgba(255,166,87,.12);border:1px solid rgba(255,166,87,.25);color:var(--a5)">
+        🖥️ UI / E2E (Topo)<br><span style="font-size:.75rem;font-weight:400">Menor quantidade · $$$$ · Execução lenta · Alta fragilidade</span>
+      </div>
+      <div class="py-lvl" style="width:85%;background:rgba(210,168,255,.1);border:1px solid rgba(210,168,255,.2);color:var(--a4)">
+        🔌 Service / API / Integração (Meio)<br><span style="font-size:.75rem;font-weight:400">Quantidade intermediária · Valida contratos e microsserviços</span>
+      </div>
+      <div class="py-lvl" style="width:100%;background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.2);color:var(--a2)">
+        ⚙️ Unitários / Componentes (Base)<br><span style="font-size:.75rem;font-weight:400">Maior quantidade · $ Mais barato · Milissegundos · Alta cobertura</span>
+      </div>
+    </div>
+    <div class="hl green" style="margin-top:1rem">
+      <strong>Princípio-chave:</strong> Base larga de testes unitários (rápidos e baratos) → camada intermediária de serviço/API → ápice estreito de UI (caro, lento, frágil). Testes manuais focam em tarefas analíticas e exploratórias.
+    </div>
+  </div>
+
+  <div class="sub mt2">⚠️ Pré-requisitos para um Projeto de Automação</div>
+  <div class="grid g3 mt">
+    <div class="card"><div class="ch"><span class="ci">📋</span><div><h3>Processos Organizados</h3></div></div><p>Automatizar caos gera mais caos. Os processos devem estar maduros antes da automação.</p></div>
+    <div class="card"><div class="ch"><span class="ci">🎯</span><div><h3>Escopo Definido</h3></div></div><p>O time deve saber quais testes automatizar com alinhamento sobre cobertura e objetivos.</p></div>
+    <div class="card"><div class="ch"><span class="ci">👩‍💻</span><div><h3>Equipe Capacitada</h3></div></div><p>Falta de preparo técnico é a <strong>principal causa de fracasso</strong> de projetos de automação.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ AULA 3 ═══════════════════════════ -->
+<section id="a3" class="sec">
+  <div class="sh">
+    <div class="si" style="background:rgba(255,166,87,.1);color:var(--a5)">🔄</div>
+    <div><h2>Gestão de Mudanças em Ambientes Ágeis</h2><p>6 Princípios · 3 Altitudes · Lean Change · Scrum/Kanban/PDCA</p></div>
+  </div>
+
+  <div class="quote">Se o objetivo fosse apenas mitigar riscos, não mudaríamos nada. Se o objetivo fosse apenas velocidade, quebraríamos tudo.</div>
+
+  <div class="sub">⚖️ Tradicional vs. Ágil</div>
+  <div class="tw mt">
+    <table>
+      <thead><tr><th>Dimensão</th><th>Gestão Tradicional</th><th>Gestão Ágil</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Natureza</strong></td><td>Evento único com data de Go-live</td><td>Processo contínuo e colaborativo</td></tr>
+        <tr><td><strong>Planejamento</strong></td><td>Planos rígidos e preditivos de longo prazo</td><td>Ciclos curtos e iterativos com feedback</td></tr>
+        <tr><td><strong>Governança</strong></td><td>Imposto top-down (de cima para baixo)</td><td>Responsabilidade compartilhada (co-criação)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub mt2">🧭 Os 6 Princípios da Agilidade na Mudança</div>
+  <div class="grid g2 mt">
+    <div class="card"><div class="ch"><span class="num-badge" style="background:rgba(63,185,80,.15);color:var(--a2)">01</span><div><h3>Adaptação Contínua</h3></div></div><p>Planos são guias vivos, não trilhos fixos inflexíveis.</p></div>
+    <div class="card"><div class="ch"><span class="num-badge" style="background:rgba(88,166,255,.15);color:var(--a1)">02</span><div><h3>Incremental e Iterativa</h3></div></div><p>Mudanças estruturadas em fatias pequenas e gerenciáveis.</p></div>
+    <div class="card"><div class="ch"><span class="num-badge" style="background:rgba(255,166,87,.15);color:var(--a5)">03</span><div><h3>Centrada nas Pessoas</h3></div></div><p>Foco prioritário na experiência e empatia com o colaborador.</p></div>
+    <div class="card"><div class="ch"><span class="num-badge" style="background:rgba(210,168,255,.15);color:var(--a4)">04</span><div><h3>Feedback Rápido</h3></div></div><p>Ciclos curtos para possibilitar rápida correção de rota.</p></div>
+    <div class="card"><div class="ch"><span class="num-badge" style="background:rgba(247,129,102,.15);color:var(--a3)">05</span><div><h3>Transparência</h3></div></div><p>O "porquê" da mudança visível e claro para toda a organização.</p></div>
+    <div class="card"><div class="ch"><span class="num-badge" style="background:rgba(121,192,255,.15);color:var(--a6)">06</span><div><h3>Equipes Capacitadas</h3></div></div><p>Autonomia delegada na execução — substitui comando e controle.</p></div>
+  </div>
+
+  <div class="sub mt2">🏔️ Os 3 Níveis de Altitude da Mudança</div>
+  <div class="grid g3 mt">
+    <div class="card bord-top-lilac"><h3 style="color:var(--a4);margin-bottom:.5rem">Nível 1 — Projeto (Estratégico)</h3><p>Avaliação de riscos globais, impacto em sistemas legados, patrocínio executivo e prontidão organizacional.</p></div>
+    <div class="card bord-top-blue"><h3 style="color:var(--a1);margin-bottom:.5rem">Nível 2 — Release (Tático)</h3><p>Comunicação focada, treinamentos estruturados, documentação da entrega tangível.</p></div>
+    <div class="card bord-top-green"><h3 style="color:var(--a2);margin-bottom:.5rem">Nível 3 — Sprint (Operacional)</h3><p>Feedback diário, testes com usuários reais, pulse surveys em tempo real.</p></div>
+  </div>
+
+  <div class="sub mt2">🔬 Lean Change Management — Ciclo Experimental</div>
+  <div class="card mt">
+    <div class="tl">
+      <div class="ti"><div class="td"></div><h4>1. Insights</h4><p>Captura de dados qualitativos e quantitativos, conversas, identificação de gargalos com as pessoas afetadas.</p></div>
+      <div class="ti"><div class="td"></div><h4>2. Opções</h4><p>Levantamento e priorização de soluções avaliando a matriz <strong>Valor vs. Custo</strong>.</p></div>
+      <div class="ti"><div class="td"></div><h4>3. Experimentos</h4><p>Teste de hipóteses com grupos-piloto — criação do <strong>MVP da Mudança</strong> — via Experiment Tracker.</p></div>
+      <div class="ti"><div class="td"></div><h4>4. Revisão & Aprendizado</h4><p>Acompanhamento: Preparação → Execução → Revisão. Decidir se escala ou ajusta.</p></div>
+    </div>
+  </div>
+
+  <div class="sub mt2">🔧 Integração com Frameworks Ágeis</div>
+  <div class="grid g2 mt">
+    <div class="card">
+      <div class="ch"><span class="ci">🏃</span><div><h3>Scrum + Gestão de Mudança</h3></div></div>
+      <p>• <strong>Backlog:</strong> incluir Histórias de Usuário de Mudança</p>
+      <p>• <strong>Daily:</strong> identificar resistências humanas e bloqueios</p>
+      <p>• <strong>Review:</strong> patrocinador participa ativamente</p>
+      <p>• <strong>Retrospectiva:</strong> inspecionar o próprio processo de mudança</p>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ci">📋</span><div><h3>Kanban — Visualização do Fluxo</h3></div></div>
+      <p>• <strong>Gestão à Vista:</strong> quem está em comunicação, treinamento, adoção</p>
+      <p>• <strong>Limitar WIP:</strong> muitas mudanças simultâneas geram paralisia</p>
+      <p>• <strong>Identificar Gargalos:</strong> onde o fluxo de adoção está travado</p>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ci">♻️</span><div><h3>PDCA Aplicado à Mudança</h3></div></div>
+      <p>• <strong>Plan:</strong> definir hipótese e objetivo esperado</p>
+      <p>• <strong>Do:</strong> executar projeto-piloto controlado</p>
+      <p>• <strong>Check:</strong> medir métricas reais de adoção</p>
+      <p>• <strong>Act:</strong> escalar ou ajustar a rota</p>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ci">🌿</span><div><h3>Lean — Eliminar Desperdícios</h3></div></div>
+      <p>Eliminar burocracias, relatórios não lidos e comunicações vazias. Foco obsessivo em atividades que geram <strong>valor real de adoção</strong>.</p>
+    </div>
+  </div>
+
+  <div class="sub mt2">⚠️ Armadilhas Comuns</div>
+  <div class="grid g2 mt">
+    <div class="card bord-top-red"><h3 style="color:var(--a3);margin-bottom:.5rem">Zombie Agile</h3><p>Seguir ritos ágeis mecanicamente como checklist sem incorporar a cultura e mentalidade — <em>Checklist vs. Cultura</em>.</p></div>
+    <div class="card bord-top-red"><h3 style="color:var(--a3);margin-bottom:.5rem">Resistência da Gerência</h3><p>Medo de perda de poder/controle e falta de compreensão dos modelos ágeis.</p></div>
+    <div class="card bord-top-red"><h3 style="color:var(--a3);margin-bottom:.5rem">Fadiga de Mudança</h3><p>Muitas iniciativas simultâneas sem priorização clara geram paralisia e estresse nos colaboradores.</p></div>
+    <div class="card bord-top-red"><h3 style="color:var(--a3);margin-bottom:.5rem">Falta de Patrocínio</h3><p>Líderes que pregam agilidade, mas cobram relatórios tradicionais e microgerenciamento na prática.</p></div>
+  </div>
+
+  <div class="hl">
+    <strong>Papel do Líder:</strong> De "Comando e Controle" (cobrador de tarefas) para <strong>"Jardineiro"</strong> — cultiva o ecossistema, prepara o solo e remove obstáculos para o time florescer.
+  </div>
+</section>
+
+<!-- ═══════════════════════════ AULA 4 ═══════════════════════════ -->
+<section id="a4" class="sec">
+  <div class="sh">
+    <div class="si" style="background:rgba(88,166,255,.1);color:var(--a1)">📡</div>
+    <div><h2>Telemetria e Monitoração Contínua</h2><p>MELT · CM Cycle · 3 Pilares · MTTR · AIOps</p></div>
+  </div>
+
+  <div class="quote">Em um ecossistema digital complexo, quem não monitora continuamente, opera no escuro. Aja com visibilidade proativa.</div>
+
+  <div class="sub">🔄 Monitoramento Periódico vs. Contínuo</div>
+  <div class="grid g2 mt">
+    <div class="card bord-top-red">
+      <h3 style="color:var(--a3);margin-bottom:.5rem">❌ Monitoramento Periódico</h3>
+      <p>Checagens agendadas criam <strong>janelas de vulnerabilidade</strong> entre verificações — ameaças e falhas ocorrem nesses pontos cegos invisíveis.</p>
+    </div>
+    <div class="card bord-top-green">
+      <h3 style="color:var(--a2);margin-bottom:.5rem">✅ Monitoramento Contínuo (CM)</h3>
+      <p>Fluxo linear e ininterrupto de observação em tempo real — detecta ameaças, gargalos e falhas de conformidade <strong>imediatamente</strong>.</p>
+    </div>
+  </div>
+
+  <div class="hl blue">
+    <strong>Analogia para a Prova:</strong> Se o Monitoramento Contínuo é o <strong>cérebro</strong>, a Telemetria é o <strong>sistema nervoso</strong> — coleta e transmite dados de ativos distribuídos para análise centralizada.
+  </div>
+
+  <div class="sub mt2">🔬 O Ciclo do CM (4 Etapas Contínuas)</div>
+  <div class="grid g2 mt">
+    <div class="card"><div class="ch"><span class="ci">📥</span><div><h3>1. Coleta</h3></div></div><p>Ingestão contínua de dados originados de múltiplas fontes distribuídas.</p></div>
+    <div class="card"><div class="ch"><span class="ci">🔍</span><div><h3>2. Análise</h3></div></div><p>Processamento inteligente para identificar padrões, tendências e comportamentos anômalos.</p></div>
+    <div class="card"><div class="ch"><span class="ci">📊</span><div><h3>3. Relatórios</h3></div></div><p>Visão holística da saúde, integridade e postura de segurança do ecossistema.</p></div>
+    <div class="card"><div class="ch"><span class="ci">⚡</span><div><h3>4. Resposta</h3></div></div><p>Alertas em tempo real e remediações automatizadas. O ciclo reinicia imediatamente na Coleta.</p></div>
+  </div>
+
+  <div class="sub mt2">📊 Os 4 Pilares MELT</div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Sigla</th><th>Pilar</th><th>Definição</th><th>Exemplos</th></tr></thead>
+      <tbody>
+        <tr><td><strong style="color:var(--a2)">M</strong></td><td><strong>Metrics (Métricas)</strong></td><td>Medidas numéricas agregadas ao longo do tempo</td><td>CPU, RAM, RPS, latência de rede</td></tr>
+        <tr><td><strong style="color:var(--a1)">E</strong></td><td><strong>Events (Eventos)</strong></td><td>Ocorrências pontuais com timestamp exato</td><td>Falha de login, deploy, reinicialização</td></tr>
+        <tr><td><strong style="color:var(--a5)">L</strong></td><td><strong>Logs</strong></td><td>Registros textuais e cronológicos contínuos</td><td>Stack traces, logs de auditoria, SQL</td></tr>
+        <tr><td><strong style="color:var(--a4)">T</strong></td><td><strong>Traces (Rastreios)</strong></td><td>Percurso ponta a ponta de uma transação em microsserviços</td><td>UI → API Gateway → Pagamento → BD</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub mt2">🏛️ Os 3 Pilares do Monitoramento</div>
+  <div class="grid g3 mt">
+    <div class="card bord-top-amber">
+      <h3 style="color:var(--a5);margin-bottom:.6rem">🌐 Rede (Network)</h3>
+      <p>Padrões de tráfego, largura de banda, perda de pacotes, firewalls/switches/roteadores.</p>
+      <div class="tags"><span class="tag">Wireshark</span><span class="tag">NMap</span></div>
+    </div>
+    <div class="card bord-top-blue">
+      <h3 style="color:var(--a1);margin-bottom:.6rem">📱 Aplicação (APM)</h3>
+      <p>Tempos de resposta de APIs, uptime, taxas de erro, lentidão na experiência do usuário.</p>
+      <div class="tags"><span class="tag">Datadog</span><span class="tag">Splunk</span></div>
+    </div>
+    <div class="card bord-top-green">
+      <h3 style="color:var(--a2);margin-bottom:.6rem">🖥️ Sistema (Infra)</h3>
+      <p>Saúde de servidores, CPU/RAM/Disco, desempenho de BD, controle de permissões.</p>
+      <div class="tags"><span class="tag">Prometheus</span><span class="tag">Nagios</span></div>
+    </div>
+  </div>
+
+  <div class="sub mt2">📉 MTTR e Desafios Operacionais</div>
+  <div class="grid g2 mt">
+    <div class="card bord-top-green">
+      <h3 style="color:var(--a2);margin-bottom:.5rem">✅ Benefícios</h3>
+      <p>• <strong>Redução drástica do MTTR</strong> (Mean Time to Resolution)</p>
+      <p>• Detecção proativa de ataques de força bruta e padrões maliciosos</p>
+      <p>• Feedback rápido para devs e otimização pós-release</p>
+    </div>
+    <div class="card bord-top-red">
+      <h3 style="color:var(--a3);margin-bottom:.5rem">⚠️ Desafios</h3>
+      <p>• <strong>Fadiga de Alertas</strong> — falsos positivos dessensibilizam analistas</p>
+      <p>• <strong>Silos de ferramentas</strong> — incompatibilidade entre sistemas</p>
+      <p>• <strong>Custos de armazenamento</strong> — dados redundantes e desordenados</p>
+    </div>
+  </div>
+
+  <div class="hl blue">
+    <strong>Futuro — AIOps:</strong> IA e ML filtram petabytes de telemetria, predizem falhas iminentes antes que ocorram e executam autocura (<em>self-healing</em>) autônoma — eliminando a fadiga de alertas.
+  </div>
+</section>
+
+<!-- ═══════════════════════════ AULA 5 ═══════════════════════════ -->
+<section id="a5" class="sec">
+  <div class="sh">
+    <div class="si" style="background:rgba(210,168,255,.1);color:var(--a4)">🏛️</div>
+    <div><h2>ALM x CVDS no Contexto Ágil</h2><p>Ciclo de vida de desenvolvimento vs. gestão holística da aplicação</p></div>
+  </div>
+
+  <div class="quote">O software não é apenas código. É o negócio em movimento.</div>
+
+  <div class="sub">🔧 CVDS — Ciclo de Vida de Desenvolvimento de Software</div>
+  <div class="hl blue">
+    <strong>Norma:</strong> NBR ISO/IEC 12207 · <strong>Macrofases:</strong> Definição → Desenvolvimento → Operação
+  </div>
+  <div class="card mt">
+    <div class="tl">
+      <div class="ti"><div class="td"></div><h4>1. Requisitos</h4><p>Levantamento, análise e especificação das necessidades técnicas e funcionais.</p></div>
+      <div class="ti"><div class="td"></div><h4>2. Projeto (Design)</h4><p>Modelagem arquitetural, definição de componentes, dados e interfaces.</p></div>
+      <div class="ti"><div class="td"></div><h4>3. Implementação</h4><p>Codificação, construção e programação propriamente dita.</p></div>
+      <div class="ti"><div class="td"></div><h4>4. Testes</h4><p>Validação, verificação, garantia de qualidade e mitigação de bugs.</p></div>
+      <div class="ti"><div class="td"></div><h4>5. Produção (Implantação)</h4><p>Disponibilização e release do sistema no ambiente operacional.</p></div>
+    </div>
+  </div>
+  <div class="hl orange">
+    <strong>Limitação do CVDS isolado:</strong> Não responde quem aprova o business case/orçamento, qual o alinhamento estratégico ou como o software é gerenciado após anos em produção até a desativação.
+  </div>
+
+  <div class="sub mt2">🌐 ALM — Application Lifecycle Management</div>
+  <div class="hl">
+    <strong>Definição:</strong> Integração definitiva entre a necessidade de negócio e a engenharia de software ao longo de <strong>toda a vida útil</strong> da aplicação — do nascimento à desativação.
+  </div>
+  <div class="grid g3 mt">
+    <div class="card bord-top-amber"><h3 style="color:var(--a5);margin-bottom:.5rem">Pilar 1: Governança</h3><p>Decisões estratégicas, aprovação do Business Case, alocação orçamentária, gerenciamento de portfólio.</p></div>
+    <div class="card bord-top-blue"><h3 style="color:var(--a1);margin-bottom:.5rem">Pilar 2: Desenvolvimento</h3><p>Criação real da aplicação. <strong>É aqui que o CVDS habita</strong> — o CVDS é subsistema técnico dentro do ALM.</p></div>
+    <div class="card bord-top-green"><h3 style="color:var(--a2);margin-bottom:.5rem">Pilar 3: Operações</h3><p>Pós-implantação: execução, sustentação, monitoramento e suporte em produção até o sunset.</p></div>
+  </div>
+
+  <div class="sub mt2">⚖️ CVDS vs. ALM — Comparativo Direto</div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Critério</th><th>CVDS</th><th>ALM</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Foco</strong></td><td>Construção técnica e engenharia</td><td>Valor de negócio e ciclo total</td></tr>
+        <tr><td><strong>Início</strong></td><td>Levantamento de requisitos técnicos</td><td>Aprovação da ideia (Business Case)</td></tr>
+        <tr><td><strong>Fim</strong></td><td>Implantação em produção (deploy)</td><td>Aposentadoria definitiva (sunset)</td></tr>
+        <tr><td><strong>Natureza</strong></td><td>Sequência de fases técnicas (projeto)</td><td>Processo contínuo integrador (produto)</td></tr>
+        <tr><td><strong>Metáfora</strong></td><td>O <strong>motor</strong> da fábrica</td><td>A <strong>gestão de toda</strong> a fábrica</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub mt2">🔄 Integração no Ecossistema Ágil</div>
+  <div class="grid g2 mt">
+    <div class="card bord-top-red">
+      <h3 style="margin-bottom:.5rem">🌊 Cascata (Waterfall)</h3>
+      <p>Ciclo único, longo e sequencial. Entrega de valor apenas no final do projeto — alto risco de desalinhamento com o mercado.</p>
+    </div>
+    <div class="card bord-top-green">
+      <h3 style="margin-bottom:.5rem">⚡ Ágil — Mini-Sprints</h3>
+      <p>Cada Sprint (1-4 semanas) é um mini-CVDS completo: Requisitos → Design → Código → Testes → Entrega incremental.</p>
+    </div>
+  </div>
+  <div class="hl green" style="text-align:center;font-size:.95rem;font-weight:700">
+    "Construa com a precisão do CVDS · Gerencie o valor com o ALM · Adapte-se na velocidade do Agile"
+  </div>
+</section>
+
+<!-- ═══════════════════════════ REVISÃO AV1 ═══════════════════════════ -->
+<section id="rev" class="sec">
+  <div class="sh">
+    <div class="si" style="background:rgba(247,129,102,.1);color:var(--a3)">📋</div>
+    <div><h2>Revisão Integrada — AV1</h2><p>Síntese das 5 aulas · Matriz de conceitos · Pilares fundamentais para a prova</p></div>
+  </div>
+
+  <div class="sub">🗺️ Mapa da Disciplina</div>
+  <div class="grid g2 mt">
+    <div class="card bord-top-blue"><div class="ch"><span class="ci">🔬</span><div><h3>Aula 01 — Fundamentos</h3></div></div><p>Erro/Defeito/Falha · Verificação vs. Validação · Técnicas Estáticas e Dinâmicas · Estágios (Unidade, Integração, Sistema, Aceitação)</p></div>
+    <div class="card bord-top-lilac"><div class="ch"><span class="ci">🤖</span><div><h3>Aula 02 — Automação</h3></div></div><p>Vantagens e custos · Elegibilidade de testes · Pirâmide (Unitário → API → UI) · Pré-requisitos</p></div>
+    <div class="card bord-top-amber"><div class="ch"><span class="ci">🔄</span><div><h3>Aula 03 — Mudanças</h3></div></div><p>Paradoxo Risco vs. Velocidade · 6 Princípios Ágeis · 3 Níveis de Altitude · Lean Change Management</p></div>
+    <div class="card bord-top-green"><div class="ch"><span class="ci">📡</span><div><h3>Aula 04 — Telemetria</h3></div></div><p>CM vs. Periódico · Pilares MELT · Observabilidade Full Stack · Redução do MTTR · Fadiga de Alertas</p></div>
+    <div class="card bord-top-red"><div class="ch"><span class="ci">🏛️</span><div><h3>Aula 05 — ALM x CVDS</h3></div></div><p>CVDS (NBR 12207) · 3 Pilares ALM (Governança/Dev/Ops) · Cascata vs. Ágil · Sprints iterativas</p></div>
+  </div>
+
+  <div class="sub mt2">📊 Matriz Síntese da Disciplina</div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Módulo</th><th>Foco Principal</th><th>Artefato/Prática Chave</th><th>Conexão de Qualidade</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Aula 01</strong></td><td>Detecção de Falhas &amp; V&amp;V</td><td>Verificação vs. Validação · Estágios de Teste</td><td>Conformidade técnica e adequação ao cliente</td></tr>
+        <tr><td><strong>Aula 02</strong></td><td>Eficiência &amp; Repetibilidade</td><td>Pirâmide de Testes (Unitário → API → UI)</td><td>Redução de custos de regressão · Feedback rápido</td></tr>
+        <tr><td><strong>Aula 03</strong></td><td>Fator Humano &amp; Adaptação</td><td>Lean Change Management · 3 Níveis de Altitude</td><td>Alinhamento cultural · Paradoxo risco vs. velocidade</td></tr>
+        <tr><td><strong>Aula 04</strong></td><td>Observabilidade Proativa</td><td>Pilares MELT · Redução do MTTR</td><td>Resiliência operacional · Eliminação de pontos cegos</td></tr>
+        <tr><td><strong>Aula 05</strong></td><td>Governança vs. Engenharia</td><td>Sprints iterativas sob governança ALM</td><td>Estratégia de negócio + entrega de código alinhadas</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub mt2">🎯 Pilares Fundamentais — Para Prova</div>
+  <div class="grid mt">
+    <div class="card bord-top-green">
+      <div class="ch"><span class="ci">🔬</span><div><h3>Qualidade Desde o Dia 01 (Shift-Left)</h3></div></div>
+      <p>Testar o quanto antes reduz <strong>exponencialmente</strong> o custo de correção de defeitos. Quanto mais tarde o bug é encontrado, mais caro é corrigir.</p>
+    </div>
+    <div class="card bord-top-blue">
+      <div class="ch"><span class="ci">🤖</span><div><h3>Automação Inteligente</h3></div></div>
+      <p>Base sólida em testes unitários e de integração/API. Suítes de UI enxutas. Automatizar caos gera mais caos — processos devem estar maduros.</p>
+    </div>
+    <div class="card bord-top-amber">
+      <div class="ch"><span class="ci">👥</span><div><h3>Gestão de Mudanças Centrada em Pessoas</h3></div></div>
+      <p>Envolver afetados na co-criação. Ciclos curtos de experimentação (Lean Change). Segurança psicológica. Líder como Jardineiro, não controlador.</p>
+    </div>
+    <div class="card bord-top-lilac">
+      <div class="ch"><span class="ci">📡</span><div><h3>Observabilidade Proativa (MELT)</h3></div></div>
+      <p>Usar os 4 pilares MELT sistematicamente. Reduzir MTTR com alertas em tempo real. Automação via runbooks para combater fadiga de alertas.</p>
+    </div>
+    <div class="card bord-top-red">
+      <div class="ch"><span class="ci">🏛️</span><div><h3>Alinhamento ALM/CVDS/Ágil</h3></div></div>
+      <p>Cada Sprint de engenharia (CVDS) responde aos objetivos estratégicos (ALM). O CVDS é parte do ALM — não são concorrentes, são complementares.</p>
+    </div>
+  </div>
+
+  <div class="hl" style="text-align:center;font-size:1rem;font-weight:700;margin-top:1.5rem">
+    🎯 "Construa com a precisão do CVDS, gerencie o valor com o ALM e adapte-se com o Agile!"
+  </div>
+
+  <div class="sub mt2">🧠 Flashcards de Revisão Rápida</div>
+  <div class="grid g2 mt">
+    <div class="card"><p style="font-weight:700;color:var(--a1)">Q: Qual a diferença entre Defeito e Falha?</p><p>R: <strong>Defeito</strong> é a imperfeição no código (estático). <strong>Falha</strong> é o comportamento incorreto observado durante a <strong>execução</strong> (dinâmico).</p></div>
+    <div class="card"><p style="font-weight:700;color:var(--a1)">Q: O que é V&V?</p><p>R: <strong>Verificação</strong> = "construindo certo?" (conformidade técnica). <strong>Validação</strong> = "construindo o certo?" (necessidade do cliente).</p></div>
+    <div class="card"><p style="font-weight:700;color:var(--a1)">Q: Qual a base da Pirâmide de Testes?</p><p>R: <strong>Testes Unitários</strong> — maior quantidade, mais baratos, mais rápidos (milissegundos). Topo = UI (caro, lento, frágil).</p></div>
+    <div class="card"><p style="font-weight:700;color:var(--a1)">Q: O que significa MELT?</p><p>R: <strong>M</strong>etrics · <strong>E</strong>vents · <strong>L</strong>ogs · <strong>T</strong>races — os 4 pilares da telemetria e observabilidade.</p></div>
+    <div class="card"><p style="font-weight:700;color:var(--a1)">Q: CVDS começa e termina onde?</p><p>R: Começa nos <strong>requisitos técnicos</strong> e termina na <strong>implantação em produção</strong>. O ALM vai além: da ideia até o sunset.</p></div>
+    <div class="card"><p style="font-weight:700;color:var(--a1)">Q: Quais os 3 pilares do ALM?</p><p>R: <strong>Governança</strong> (business case + orçamento) · <strong>Desenvolvimento</strong> (onde vive o CVDS) · <strong>Operações</strong> (sustentação em produção).</p></div>
+    <div class="card"><p style="font-weight:700;color:var(--a1)">Q: O que é MTTR?</p><p>R: <strong>Mean Time to Resolution</strong> — tempo médio para diagnosticar e resolver um incidente. CM reduz o MTTR drasticamente com dados em tempo real.</p></div>
+    <div class="card"><p style="font-weight:700;color:var(--a1)">Q: Quais os 6 princípios da Gestão Ágil de Mudanças?</p><p>R: Adaptação Contínua · Incremental · Centrada nas Pessoas · Feedback Rápido · Transparência · Equipes Capacitadas.</p></div>
+  </div>
+</section>
+
+</main>
+
+<button id="top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo">↑</button>
+
+<script>
+  function show(id, btn) {
+    document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  const t = document.getElementById('top');
+  window.addEventListener('scroll', () => t.classList.toggle('show', window.scrollY > 400));
+</script>
+</body>
+</html>
 
